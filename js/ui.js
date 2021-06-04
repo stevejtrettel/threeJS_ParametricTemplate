@@ -23,9 +23,9 @@ let ui = {
     AboutThis: function(){
       window.open('./about.html');
     },
-    a:0.,
-    b:0.,
-    c:0.,
+    a:0.5,
+    b:0.5,
+    c:0.5,
     slices:0.1,
     stacks:0.5,
     curveRes:0.5,

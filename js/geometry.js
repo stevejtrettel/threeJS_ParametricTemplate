@@ -17,7 +17,7 @@ import{
     parametricCurvePoint,
    parametricSurfacePoint
 } from './calculations.js';
-
+// from './calculations_Advanced.js';
 
 
 
@@ -56,14 +56,11 @@ function createCurve(time){
     let res=5*numSteps;
     let width=Math.max(0.01,0.3*ui.tubeWidth);
 
-    let geometry = new THREE.TubeBufferGeometry(curve, res, width, 15, true);
+    let geometry = new THREE.TubeBufferGeometry(curve, res, width, 15, false);
     
     return geometry; 
     
 }
-
-
-
 
 
 ////outputs the geometry of the surface

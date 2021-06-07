@@ -80,14 +80,13 @@ function updateMeshes(time) {
     surfaceMaterial.transmission=1-ui.opacity;
     surfaceMaterial.color.set(ui.surfColor);
     surfaceMaterial.envMapIntensity=3.*ui.reflectivity;
+
     curveMaterial.color.set(ui.curveColor);
-
-
 
 
     //update the geometries
     surface.geometry.dispose();
-    surface.geometry = createSurface(time,0);
+    surface.geometry = createSurface(time);
 
     curve.geometry.dispose();
     curve.geometry = createCurve(time);

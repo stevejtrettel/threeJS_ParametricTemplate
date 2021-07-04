@@ -25,7 +25,6 @@ import {
     } from './geometry.js';
 
     import{
-        HSLToHex,
         curveMaterial,
         surfaceMaterial,
         glassMaterial,
@@ -46,6 +45,7 @@ import {
 //=============================================
 
 let partialGraphs=[];
+let partialGraphMaterials=[];
 let nMax=31;
 
 
@@ -114,11 +114,10 @@ function updateFourierGraphCollection(M){
         else{
             //move graph to the right location
             partialGraphs[i].visible=true;
-            //partialGraphs[i].material.color.set(HSLToHex(0.5,0.8,i/M));
+            partialGraphMaterials[i].color.setHSL(0.7,0.5,i/M);
             partialGraphs[i].position.set(0,0,-M+i);
         }
     }
-
 }
 
 
@@ -147,7 +146,12 @@ function createMeshes(cubeTexture) {
     for(let i=0;i<nMax;i++) {
         //change the number of terms in the sum
         params.n=i;
-        mesh=fourierGraphMesh( params, curveMaterial );
+        //make a copy of the material for each curve; we are going to individually change its color
+        partialGraphMaterials.push(curveMaterial.clone());
+        partialGraphMaterials[i].color.setHSL(0.7,0.5,i/nMax);
+
+        //make the actual mesh
+        mesh=fourierGraphMesh( params, partialGraphMaterials[i] );
         mesh.position.set(0,0,-nMax+1+i);
         partialGraphs.push(mesh);
         scene.add(partialGraphs[i]);

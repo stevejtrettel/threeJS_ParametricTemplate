@@ -75,7 +75,7 @@ function rodGeometry(p,q,thickness=0.25){
 
 
 //the curve defining the partial sum of the fourier series
-//parameters={n,a,b,thickness}
+//parameters={n,a,b,width}
 function fourierGraphGeometry(curve,params){
     //n is how many terms in fourier series
     //a,b are endpoints of interval it is graphed on
@@ -95,7 +95,7 @@ function fourierGraphGeometry(curve,params){
 
     //build a path from this curve
     let path = new THREE.CatmullRomCurve3(points);
-    return new THREE.TubeBufferGeometry(path, 3000, params.thickness, 15, false);
+    return new THREE.TubeBufferGeometry(path, 3000, params.width, 15, false);
 
 }
 

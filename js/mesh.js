@@ -52,11 +52,6 @@ import {
 let graph,graph_Complex;
 let linkage;
 let wheels;
-// let rods=[];
-// let balls=[];
-
-
-
 
 
 
@@ -66,24 +61,31 @@ let wheels;
 
 
 //draw the graph of a partial sum of the fourier series
-//parameters={n,a,b,thickness}
+//parameters={n,a,b,width}
 function fourierGraphMesh(curve, params, mat){
 
-    let graph, geometry,pos, ball1, ball2;
+    //aux variables
+    let geometry,mesh,pos;
+    let ball1,ball2;
+
+    //thing to export
+    let graph=new THREE.Object3D();
 
     //make the main part of the graph
-    graph=new THREE.Group();
     geometry=fourierGraphGeometry(curve, params);
-    curve=new THREE.Mesh(geometry, mat);
-    graph.add(curve);
+    mesh=new THREE.Mesh(geometry, mat);
+    graph.add(mesh);
 
     //add some balls on the end of the graph
-    geometry=new THREE.SphereBufferGeometry(0.075,32,32);
+    geometry=new THREE.SphereBufferGeometry(1.5*params.width,32,32);
+
+
     ball1=new THREE.Mesh(geometry, mat);
     pos=fourierGraphPoint(params.a,params.n);
     ball1.position.set(pos.x,pos.y,pos.z);
     graph.add(ball1);
 
+    //add a second copy of this same ball, at a different location
     ball2=new THREE.Mesh(geometry, mat);
     pos=fourierGraphPoint(params.b,params.n);
     ball2.position.set(pos.x,pos.y,pos.z);
@@ -196,7 +198,7 @@ function createMeshes(cubeTexture) {
         n:30,
         a:-2*Math.PI,
         b:2.*Math.PI,
-        thickness:0.05
+        width:0.05
     };
     graph=fourierGraphMesh(fourierGraphPoint, params, curveMaterial);
     scene.add(graph);

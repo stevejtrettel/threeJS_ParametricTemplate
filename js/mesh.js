@@ -69,8 +69,8 @@ function createMeshes(cubeTexture) {
 
     //curve geometry
     let params={
-        length:10,
-        initialCond:setInitialCondition(0.3,0.3),
+        length:ui.length,
+        initialCond:setInitialCondition(ui.anglePos,ui.angleVel),
     }
     geometry=createGeodesic(params);
     curve=new THREE.Mesh(geometry, curveMaterial);
@@ -82,7 +82,7 @@ function createMeshes(cubeTexture) {
 function updateGeodesicFromUI(){
     curve.geometry.dispose();
     let params={
-        length:10,
+        length:ui.length,
         initialCond:setInitialCondition(ui.anglePos,ui.angleVel)
     };
     curve.geometry = createGeodesic(params);
@@ -90,19 +90,7 @@ function updateGeodesicFromUI(){
 
 function updateMeshes(time) {
 
-    //use the UI to update material properties
-    // surfaceMaterial.transmission=1-ui.opacity;
-    // surfaceMaterial.color.set(ui.surfColor);
-    // surfaceMaterial.envMapIntensity=3.*ui.reflectivity;
-    //
-    // curveMaterial.color.set(ui.curveColor);
-
-
-    //update the geometries
-    // surface.geometry.dispose();
-    // surface.geometry = createSurface(time);
-    //
-
+    //there is no animation here, so updates are only performed when the UI is changed
 
 }
 

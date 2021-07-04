@@ -29,21 +29,11 @@ import {
 
 function parametricSurfacePoint(u,v,time=0){
 
-    //set the coordinate domain:
-    let uMin=0;
-    let uMax=2.*Math.PI;
-    let vMin=-2.*Math.PI;
-    let vMax=2.*Math.PI;
-
 
     //get variables from user input
     let a = 1.+2.*ui.a;
     let b = ui.b;
     let c = ui.c;
-
-    //rescale the coords from [0,1]
-    u = (uMax-uMin)*u+uMin;
-    v = (vMax-vMin)*v+vMin;
 
     //make the parametric function:
     let x = (a + Math.cos(v)) * Math.sin(u);
@@ -135,7 +125,7 @@ function computeGeodesic(params){
     //initial tangent vector to geodesic;
     let state = params.initialCond;
     let ui,vi;
-    let step=0.1;
+    let step=0.03;
     let numSteps = params.length / step;
 
     for (let i = 0; i < numSteps; i++) {
@@ -144,8 +134,9 @@ function computeGeodesic(params){
         ui = (state[0]).x;
         vi = (state[0]).y;
 
+
         //calculate x y z coords of parameterization
-        pt=parametricSurfacePoint(ui,vi);
+        pt=parametricSurfacePoint(ui,vi,0);
 
         //append points to the list
         points.push(pt);

@@ -47,7 +47,7 @@ function createGeodesic(params){
     let curve = new THREE.CatmullRomCurve3(points);
 
     let res=10*numSteps;
-    let width=0.1;
+    let width=0.07;
 
     let geometry = new THREE.TubeBufferGeometry(curve, res, width, 15, false);
     
@@ -60,12 +60,24 @@ function createGeodesic(params){
 //uses the function getSurfacePoint
 function createSurface(time){
 
+
+    //set the coordinate domain:
+    let uMin=0;
+    let uMax=2.*Math.PI;
+    let vMin=-2.*Math.PI;
+    let vMax=2.*Math.PI;
+
+
     //set the resolution of the surface
     let slices=100;
     let stacks=100;
     
     return new THREE.ParametricBufferGeometry(
         (u,v, dest) => {
+
+            //rescale the coords from [0,1]
+            u = (uMax-uMin)*u+uMin;
+            v = (vMax-vMin)*v+vMin;
 
             //map using parametric surface
             let res=parametricSurfacePoint(u,v,time);

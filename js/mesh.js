@@ -79,7 +79,7 @@ function createMeshes(cubeTexture) {
 }
 
 
-function updateGeodesicFromUI(curve){
+function updateGeodesicFromUI(){
     curve.geometry.dispose();
     let params={
         length:10,

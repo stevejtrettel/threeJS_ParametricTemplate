@@ -14,7 +14,6 @@ import {
     updateGeodesicFromUI
 } from './mesh.js';
 
-
 //=============================================
 //Variables Defined in this File
 //=============================================
@@ -58,8 +57,17 @@ function createUI() {
     mainMenu.domElement.style.userSelect = 'none';
     
     mainMenu.add(ui, 'AboutThis').name("Help/About");
-    mainMenu.add(ui, 'anglePos', 0, 1, 0.01).name('Initial Position');
-    mainMenu.add(ui, 'angleVel', 0, 1, 0.01).name('Initial Veloicty');
+    let posController=mainMenu.add(ui, 'anglePos', 0, 1, 0.01).name('Initial Position');
+    let velController=mainMenu.add(ui, 'angleVel', 0, 1, 0.01).name('Initial Veloicty');
+
+    posController.onChange({
+        updateGeodesicFromUI()
+    );
+
+    velController.onChange(
+        updateGeodesicFromUI();
+    );
+
 
     let params= mainMenu.addFolder('Parameters');
     params.add(ui, 'a', 0, 1, 0.01).name('a');

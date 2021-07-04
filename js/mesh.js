@@ -50,10 +50,125 @@ import {
 //=============================================
 
 let graph,graph_Complex;
-let gBall1,gBall2,gCBall1,gCBall2;
-let wheels=[];
-let rods=[];
-let balls=[];
+let linkage;
+let wheels;
+// let rods=[];
+// let balls=[];
+
+
+
+
+
+
+//=============================================
+//Functions for creating / updating groups of meshes
+//=============================================
+
+
+//draw the graph of a partial sum of the fourier series
+//parameters={n,a,b,thickness}
+function fourierGraphMesh(curve, params, mat){
+
+    let graph, geometry,pos, ball1, ball2;
+
+    //make the main part of the graph
+    graph=new THREE.Group();
+    geometry=fourierGraphGeometry(curve, params);
+    curve=new THREE.Mesh(geometry, mat);
+    graph.add(curve);
+
+    //add some balls on the end of the graph
+    geometry=new THREE.SphereBufferGeometry(0.075,32,32);
+    ball1=new THREE.Mesh(geometry, mat);
+    pos=fourierGraphPoint(params.a,params.n);
+    ball1.position.set(pos.x,pos.y,pos.z);
+    graph.add(ball1);
+
+    ball2=new THREE.Mesh(geometry, mat);
+    pos=fourierGraphPoint(params.b,params.n);
+    ball2.position.set(pos.x,pos.y,pos.z);
+    graph.add(ball2);
+
+    //return the group to add to scene
+    return graph;
+}
+
+
+
+//draw a linkage of balls and rods building up the partial sums of the fourier series
+//parameters for linkage: N, width
+function linkageMesh(params, mat){
+
+    let width, geometry, mesh, pos;
+
+    let linkage=new THREE.Object3D();
+
+    for(let i=0; i<params.n; i++) {
+
+        //make the balls on the endpoints
+        width=1.5*params.width;
+        if(i!==0){
+            width=1.25*params.width/i;
+        }
+        geometry = new THREE.SphereBufferGeometry(width,32,32);
+        mesh = new THREE.Mesh(geometry, mat);
+        pos=fourierGraphPoint_Complex(0,i);
+        mesh.position.set(pos.x,pos.y,pos.z);
+        linkage.add(mesh);
+
+        //make all the rods
+        width = params.width/(i+1);
+        geometry = rodGeometry(fourierGraphPoint_Complex(0,i), fourierGraphPoint_Complex(0,i+1), width);
+        mesh = new THREE.Mesh(geometry, mat);
+        linkage.add(mesh);
+    }
+
+    //the children of the linkage go ball0, rod01, ball1, rod12, ball2, etc...
+    return linkage;
+
+}
+
+function updateLinkageMesh(linkage, params, t){
+    let width,pos;
+
+    for(let i=0;i<params.n;i++) {
+        //re-position all the spheres:
+        pos=fourierGraphPoint_Complex(t, i);
+        //spheres are even indices in the linkage
+        linkage.children[2*i].position.set(pos.x,pos.y,pos.z);
+
+        //re-make all the rods
+        width=params.width/(i+1);
+        //rods are the odd indices in the linkage
+        linkage.children[2*i+1].geometry.dispose();
+        linkage.children[2*i+1].geometry=rodGeometry(fourierGraphPoint_Complex(t,i), fourierGraphPoint_Complex(t,i+1),width);
+    }
+}
+
+
+//params={n,width}
+function wheelsMesh(params,mat){
+    let wheels=new THREE.Object3D();
+    let width,geometry;
+
+    for(let i=0;i<params.n;i++) {
+        width=params.width/(i+1);
+        geometry = wheelGeometry(amplitude(i),width);
+        wheels.add(new THREE.Mesh(geometry, mat));
+    }
+    return wheels;
+}
+
+
+
+function updateWheelsMesh(wheels,params,time){
+    let pos;
+
+    for(let i=0;i<params.n;i++) {
+        pos=fourierGraphPoint_Complex(time, i);
+        wheels.children[i].position.set(pos.x,pos.y,pos.z);
+    }
+}
 
 
 
@@ -73,34 +188,24 @@ function createMeshes(cubeTexture) {
     //set the res
     let N=30;
     let width, pos;
-
-
+    let params;
 
 
     //make the real graph
-    geometry=fourierGraphGeometry(fourierGraphPoint, N,-2*Math.PI,2.*Math.PI+0.012,0.05);
-    graph=new THREE.Mesh(geometry, curveMaterial);
+    params={
+        n:30,
+        a:-2*Math.PI,
+        b:2.*Math.PI,
+        thickness:0.05
+    };
+    graph=fourierGraphMesh(fourierGraphPoint, params, curveMaterial);
     scene.add(graph);
 
 
-    //add little balls on the end of the graph to cap it off:
-    geometry=new THREE.SphereBufferGeometry(0.075,32,32);
-    gBall1=new THREE.Mesh(geometry, curveMaterial);
-    scene.add(gBall1);
-    pos=fourierGraphPoint(-2*Math.PI,N);
-    gBall1.position.set(pos.x,pos.y,pos.z);
-
-    gBall2=new THREE.Mesh(geometry, curveMaterial);
-    scene.add(gBall2);
-    pos=fourierGraphPoint(2*Math.PI,N);
-    gBall2.position.set(pos.x,pos.y,pos.z);
-
-
-
-
     //make the complex graph
-    geometry=fourierGraphGeometry(fourierGraphPoint_Complex, N,-2*Math.PI,2*Math.PI+0.012,0.03);
-    graph_Complex=new THREE.Mesh(geometry, glassMaterial);
+    //leave params the same, except thickness
+    params.thickness=0.03;
+    graph_Complex=fourierGraphMesh(fourierGraphPoint_Complex, params, glassMaterial);
     scene.add(graph_Complex);
 
 
@@ -115,39 +220,14 @@ function createMeshes(cubeTexture) {
     scene.add(axis);
 
 
+    //make the wheels
+    wheels=wheelsMesh({n:30,width:0.075}, curveMaterial);
+    scene.add(wheels);
 
 
-
-
-
-
-    //make all the wheels
-    for(let i=0;i<N;i++) {
-        width=0.05/(i+1);
-        geometry = wheelGeometry(amplitude(i),width);
-        wheels.push(new THREE.Mesh(geometry, curveMaterial));
-        scene.add(wheels[i]);
-    }
-
-    //make all the rods
-    for(let i=0;i<N;i++) {
-        width = 0.05/(i+1);
-        geometry = rodGeometry(fourierGraphPoint_Complex(0,i), fourierGraphPoint_Complex(0,i+1),width);
-        rods.push(new THREE.Mesh(geometry, curveMaterial));
-        scene.add(rods[i]);
-    }
-
-    //make all the balls
-    for(let i=0;i<N;i++) {
-        width=0.1;
-        if(i!=0){
-            width=0.075/i;
-        }
-        geometry = new THREE.SphereBufferGeometry(width,32,32);
-        balls.push(new THREE.Mesh(geometry, curveMaterial));
-        scene.add(balls[i]);
-    }
-
+    //make the linkage
+    linkage=linkageMesh({n:30,width:0.075}, curveMaterial);
+    scene.add(linkage);
 }
 
 
@@ -156,35 +236,18 @@ function createMeshes(cubeTexture) {
 function updateMeshes(time) {
 
     //use the UI to update material properties
-    surfaceMaterial.transmission=1-ui.opacity;
-    surfaceMaterial.color.set(ui.surfColor);
-    surfaceMaterial.envMapIntensity=3.*ui.reflectivity;
-
-    curveMaterial.color.set(ui.curveColor);
-
-
-    let width,pos;
+    // surfaceMaterial.transmission=1-ui.opacity;
+    // surfaceMaterial.color.set(ui.surfColor);
+    // surfaceMaterial.envMapIntensity=3.*ui.reflectivity;
+    //
+    // curveMaterial.color.set(ui.curveColor);
 
     //set the domain coordinate we are going for
     let t=2.*Math.PI*Math.sin(0.2*time);
 
-    //set the depth
-    let N=30;
-
-    //move all the wheels and balls
-    for(let i=0;i<N;i++) {
-        pos=fourierGraphPoint_Complex(t, i);
-        wheels[i].position.set(pos.x,pos.y,pos.z);
-        balls[i].position.set(pos.x,pos.y,pos.z);
-    }
-
-    //re-make all the rods
-    for(let i=0;i<N;i++) {
-        width=0.05/(i+1);
-        rods[i].geometry.dispose();
-        rods[i].geometry=rodGeometry(fourierGraphPoint_Complex(t,i), fourierGraphPoint_Complex(t,i+1),width);
-    }
-
+    let params={n:30,width:0.05};
+    updateLinkageMesh(linkage,params,t);
+    updateWheelsMesh(wheels,params,t);
 
 }
 

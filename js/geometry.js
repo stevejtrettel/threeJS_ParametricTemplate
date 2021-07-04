@@ -13,14 +13,8 @@ import {
     ui
 } from './ui.js';
 
-import{
-    fourierPartialSum,
-    fourierPartialSum_Complex,
-    fourierGraphPoint,
-    fourierGraphPoint_Complex,
-} from './calculations.js';
-// from './calculations_Advanced.js';
-
+// import{
+// } from './calculations.js';
 
 
 
@@ -79,7 +73,10 @@ function rodGeometry(p,q,thickness=0.25){
 
 
 
-function fourierGraphGeometry(curve,n,a=-Math.PI,b=Math.PI, thickness=0.1){
+
+//the curve defining the partial sum of the fourier series
+//parameters={n,a,b,thickness}
+function fourierGraphGeometry(curve,params){
     //n is how many terms in fourier series
     //a,b are endpoints of interval it is graphed on
     //drawn in xy plane
@@ -87,13 +84,18 @@ function fourierGraphGeometry(curve,n,a=-Math.PI,b=Math.PI, thickness=0.1){
     let points = [];
     let t;
     for (let k = 0; k < 1000; k++) {
-        t = a+(b-a)* k / 1000;
-
-        points.push(curve(t,n));
+        t = params.a+(params.b-params.a)* k / 1000;
+        points.push(curve(t,params.n));
     }
 
+    //add a bunch of the final end point to the end of the curve, so it doesn't get cut short
+    points.push(curve(params.b,params.n));
+    points.push(curve(params.b,params.n));
+    points.push(curve(params.b,params.n));
+
+    //build a path from this curve
     let path = new THREE.CatmullRomCurve3(points);
-    return new THREE.TubeBufferGeometry(path, 3000, thickness, 15, false);
+    return new THREE.TubeBufferGeometry(path, 3000, params.thickness, 15, false);
 
 }
 

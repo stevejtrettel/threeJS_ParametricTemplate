@@ -114,8 +114,6 @@ function fourierGraphPoint_Complex(t,n){
 
 export{
     amplitude,
-    fourierPartialSum,
-    fourierPartialSum_Complex,
     fourierGraphPoint,
     fourierGraphPoint_Complex,
 }

@@ -122,7 +122,7 @@ function linkageMesh(params){
         }
         geometry = new THREE.SphereBufferGeometry(width,32,32);
         material = wheelMaterial.clone();
-        material.color.setHSL(2*(i-1)/params.n%1,0.7,0.3+0.4*(i/params.n));
+        material.color.setHSL((i-1)/params.n%1,0.7,0.3+0.4*(i/params.n));
         mesh = new THREE.Mesh(geometry, material);
         pos=fourierGraphPoint_Complex(0,i);
         mesh.position.set(pos.x,pos.y,pos.z);
@@ -132,7 +132,7 @@ function linkageMesh(params){
         width = params.width/(i+1);
         geometry = rodGeometry(fourierGraphPoint_Complex(0,i), fourierGraphPoint_Complex(0,i+1), width);
         material = wheelMaterial.clone();
-        material.color.setHSL(2*i/params.n%1,0.7,0.3+0.4*(i/params.n));
+        material.color.setHSL(i/params.n%1,0.7,0.3+0.4*(i/params.n));
         mesh = new THREE.Mesh(geometry, material);
         linkage.add(mesh);
     }
@@ -160,7 +160,10 @@ function updateLinkageMesh(linkage, params, t){
         //determine which circles are visible
         if(i<ui.N){
             linkage.children[2*i].visible=true;
+            linkage.children[2*i].material.color.setHSL((i-1)/ui.N,0.7,0.3+0.4*(i/ui.N));
+
             linkage.children[2*i+1].visible=true;
+            linkage.children[2*i+1].material.color.setHSL(i/ui.N,0.7,0.3+0.4*(i/ui.N));
         }
         else{
             linkage.children[2*i].visible=false;
@@ -179,7 +182,7 @@ function wheelsMesh(params){
         width=params.width/(i+1);
         geometry = wheelGeometry(amplitude(i),width);
         material = wheelMaterial.clone();
-        material.color.setHSL(2*i/params.n%1,0.9,0.6+0.4*(i/params.n));
+        material.color.setHSL(i/params.n%1,0.9,0.6+0.4*(i/params.n));
         wheels.add(new THREE.Mesh(geometry, material));
     }
     return wheels;
@@ -197,6 +200,7 @@ function updateWheelsMesh(wheels,params,time){
         //determine which circles are visible
         if(i<ui.N){
             wheels.children[i].visible=true;
+            wheels.children[i].material.color.setHSL(i/ui.N%1,0.9,0.6+0.4*(i/ui.N));
         }
         else{
             wheels.children[i].visible=false;

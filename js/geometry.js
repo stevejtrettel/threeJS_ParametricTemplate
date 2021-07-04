@@ -15,11 +15,8 @@ import {
 
 import{
     fourierPartialSum,
-    fourierPartialSum_Complex,
     fourierGraphPoint,
-    fourierGraphPoint_Complex,
 } from './calculations.js';
-// from './calculations_Advanced.js';
 
 
 
@@ -37,46 +34,6 @@ import{
 //Functions to Export
 //=============================================
 
-function wheelGeometry(rad, thickness=0.25){
-//wheel is created centered at 0,0,0, in the yz-plane.
-    //its orientation and position can be moved by moving the entire mesh after creating.
-    let points = [];
-    let p,t;
-
-    for (let k = 0; k < 25; k++) {
-        t = 2 * 3.14 * (k / 25);
-
-        p = new THREE.Vector3(0, rad * Math.cos(t), rad * Math.sin(t));
-        points.push(p);
-    }
-
-    let path = new THREE.CatmullRomCurve3(points);
-
-    return new THREE.TubeBufferGeometry(path, 75, thickness, 15, true);
-}
-
-
-
-
-function rodGeometry(p,q,thickness=0.25){
-    //p,q are Vector3 endpoints of the rod
-    //thickness is an optional parameter.
-
-    let points = [];
-    let t,r;
-    for (let k = 0; k < 30; k++) {
-        t = k / 30;
-
-        r = new THREE.Vector3(p.x + t * (q.x - p.x), p.y + t * (q.y - p.y), p.z + t * (q.z - p.z));
-        points.push(r);
-    }
-
-    let path = new THREE.CatmullRomCurve3(points);
-
-    return new THREE.TubeBufferGeometry(path, 75, thickness, 15, false);
-}
-
-
 
 //the curve defining the partial sum of the fourier series
 //parameters={n,a,b,thickness}
@@ -92,6 +49,11 @@ function fourierGraphGeometry(curve,params){
 
         points.push(curve(t,params.n));
     }
+
+    //add the final point a couple times so it doesn't get chopped short
+    points.push(curve(params.b,params.n));
+    points.push(curve(params.b,params.n));
+    points.push(curve(params.b,params.n));
 
     let path = new THREE.CatmullRomCurve3(points);
     return new THREE.TubeBufferGeometry(path, 3000, params.thickness, 15, false);
@@ -109,7 +71,5 @@ function fourierGraphGeometry(curve,params){
 
 
 export {
-    rodGeometry,
-    wheelGeometry,
     fourierGraphGeometry,
 };

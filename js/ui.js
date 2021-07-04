@@ -6,12 +6,12 @@ import {
     GUI
 } from './libs/dat.gui.module.js';
 
+
 //=============================================
 //Imports from My Code
 //=============================================
 
-//NONE HERE
-
+import {updateFourierGraphCollection} from "./mesh.js";
 
 
 //=============================================
@@ -27,6 +27,7 @@ let ui = {
     b:0.5,
     c:0.5,
     N:10,
+    M:30,
     slices:0.1,
     stacks:0.5,
     curveRes:0.5,
@@ -49,15 +50,22 @@ let ui = {
 
 function createUI() {
 
-    // let mainMenu = new GUI();
-    //
-    // mainMenu.width = 300;
-    //
-    // mainMenu.domElement.style.userSelect = 'none';
-    //
-    // mainMenu.add(ui, 'AboutThis').name("Help/About");
-    // mainMenu.add(ui, 'N', 0, 20, 1).name('N');
-    //
+     let mainMenu = new GUI();
+
+    mainMenu.width = 300;
+
+    mainMenu.domElement.style.userSelect = 'none';
+
+    mainMenu.add(ui, 'AboutThis').name("Help/About");
+
+    let numController=mainMenu.add(ui, 'M', 0, 30, 1).name('M');
+
+    numController.onChange(function(value){
+        updateFourierGraphCollection(value);
+    });
+
+
+
     // let params= mainMenu.addFolder('Parameters');
     // params.add(ui, 'a', 0, 1, 0.01).name('a');
     // params.add(ui, 'b', 0, 1, 0.01).name('b');

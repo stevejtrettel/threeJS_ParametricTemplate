@@ -15,19 +15,17 @@ import * as THREE from './libs/three.module.js';
         ui
     } from "./ui.js";
 
-
 import {
         scene
     } from './scene.js';
 
 
     import {
-        rodGeometry,
-        wheelGeometry,
         fourierGraphGeometry,
     } from './geometry.js';
 
     import{
+        HSLToHex,
         curveMaterial,
         surfaceMaterial,
         glassMaterial,
@@ -35,9 +33,7 @@ import {
     } from './materials.js';
 
 import {
-    amplitude,
     fourierGraphPoint,
-    fourierGraphPoint_Complex
 } from "./calculations.js";
 
 
@@ -49,9 +45,8 @@ import {
 //Variables Defined in this File
 //=============================================
 
-let graph;
 let partialGraphs=[];
-
+let nMax=31;
 
 
 //=============================================
@@ -91,11 +86,40 @@ function fourierGraphMesh(params, mat){
 
 
 //update this graph by changing its parameters.
-function updateFourierGraphMesh(group,n, a,b,thickness){
-    group.graph.geometry.dispose();
-    group.graph.geometry=fourierGraphGeometry(fourierGraphPoint, n, a, b, thickness);
-}
+function updateFourierGraphMesh(graph,params){
+    let pos;
 
+    //update the graph
+    graph.children[0].geometry.dispose();
+    graph.children[0].geometry=fourierGraphGeometry(fourierGraphPoint, params);
+
+    //move the endpoint balls:
+    pos=fourierGraphPoint(params.a,params.n);
+    graph.children[1].position.set(pos.x,pos.y,pos.z);
+
+    pos=fourierGraphPoint(params.a,params.n);
+    graph.children[2].position.set(pos.x,pos.y,pos.z);
+
+     }
+
+
+
+
+function updateFourierGraphCollection(M){
+    //re-arrange the original graphs so that we only draw M of them;
+    for(let i=0;i<nMax;i++) {
+        if(i>M){
+            partialGraphs[i].visible=false;
+        }
+        else{
+            //move graph to the right location
+            partialGraphs[i].visible=true;
+            //partialGraphs[i].material.color.set(HSLToHex(0.5,0.8,i/M));
+            partialGraphs[i].position.set(0,0,-M+i);
+        }
+    }
+
+}
 
 
 
@@ -111,46 +135,28 @@ function createMeshes(cubeTexture) {
     //build up the materials
     createMaterials(cubeTexture);
 
-
-    //set the res
-    let N=30;
-    let width, pos,params;
-
     //make the real graph
-    params={
-        n:N,
+    let params={
+        n:nMax,
         a:-2*Math.PI,
         b:2.*Math.PI+0.012,
         thickness:0.05
     };
-    graph=fourierGraphMesh( params, curveMaterial);
-    scene.add(graph);
-
 
     //make all the partial graphs
-    for(let i=0;i<N;i++) {
-        width=0.05/(i+1);
+    for(let i=0;i<nMax;i++) {
         //change the number of terms in the sum
         params.n=i;
         mesh=fourierGraphMesh( params, curveMaterial );
-        mesh.position.set(0,0,-N+i);
+        mesh.position.set(0,0,-nMax+1+i);
         partialGraphs.push(mesh);
         scene.add(partialGraphs[i]);
     }
-
 
     //make the plane
     geometry = new THREE.PlaneGeometry(4.*Math.PI+0.5 , 8.);
     let plane = new THREE.Mesh(geometry, glassMaterial);
     scene.add(plane);
-
-    // //make the x-axis
-    // geometry = rodGeometry(new THREE.Vector3(-2.*Math.PI,0,0), new THREE.Vector3(2*Math.PI+0.4,0,0),0.03);
-    // let axis=new THREE.Mesh(geometry, curveMaterial);
-    // scene.add(axis);
-
-
-
 
 }
 
@@ -159,29 +165,8 @@ function createMeshes(cubeTexture) {
 
 function updateMeshes(time) {
 
-    //use the UI to update material properties
-    surfaceMaterial.transmission=1-ui.opacity;
-    surfaceMaterial.color.set(ui.surfColor);
-    surfaceMaterial.envMapIntensity=3.*ui.reflectivity;
-
-    curveMaterial.color.set(ui.curveColor);
-
-
-    let width,pos;
-
-    //set the domain coordinate we are going for
-    let t=2.*Math.PI*Math.sin(0.2*time);
-
-    //set the depth
-    let N=30;
-
-    // //move and re-set all the graphs
-    // for(let i=0;i<N;i++) {
-    //     width=0.05/(i+1);
-    //     rods[i].geometry.dispose();
-    //     rods[i].geometry=rodGeometry(fourierGraphPoint_Complex(t,i), fourierGraphPoint_Complex(t,i+1),width);
-    // }
-
+    //no updates to run every frame: its a static image
+    //when N is changed in the UI, then we call updateFourierGraphCollection
 
 }
 
@@ -196,5 +181,6 @@ function updateMeshes(time) {
 
 export {
     createMeshes,
-    updateMeshes
+    updateMeshes,
+    updateFourierGraphCollection
 }

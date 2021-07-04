@@ -81,27 +81,10 @@ function fourierPartialSum(t,n){
     return res;
 }
 
-function fourierPartialSum_Complex(t,n){
-    let res=new THREE.Vector2(0,0);
-
-    for(let i=0; i<n; i++){
-        res.x +=  amplitude(i) * Math.cos(frequency(i) * t);
-        res.y +=  amplitude(i) * Math.sin(frequency(i) * t);
-    }
-
-    return res;
-}
 
 
 function fourierGraphPoint(t,n){
     return new THREE.Vector3(t,fourierPartialSum(t,n),0);
-}
-
-
-function fourierGraphPoint_Complex(t,n){
-    let pt=fourierPartialSum_Complex(t,n);
-    //make it so the real fourier series appears in the xy plane
-    return new THREE.Vector3(t,pt.y,pt.x);
 }
 
 
@@ -115,7 +98,5 @@ function fourierGraphPoint_Complex(t,n){
 export{
     amplitude,
     fourierPartialSum,
-    fourierPartialSum_Complex,
     fourierGraphPoint,
-    fourierGraphPoint_Complex,
 }

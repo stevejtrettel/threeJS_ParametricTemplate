@@ -78,7 +78,7 @@ let wheelMaterial;
             color: 0x1e43,
             transparent:true,
             clearcoat:1,
-            transmission:1-ui.opacity,
+            transmission:1.,
             metalness: 0,
             roughness: 0,
             envMap: cubeTex,

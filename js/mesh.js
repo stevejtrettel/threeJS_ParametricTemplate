@@ -97,6 +97,13 @@ function fourierGraphMesh(curve, params, mat){
 }
 
 
+function updateFourierGraphMesh(graph, curve, params){
+    //the first child of graph is the curve
+    graph.children[0].geometry.dispose();
+    graph.children[0].geometry=fourierGraphGeometry(curve,params);
+}
+
+
 
 //draw a linkage of balls and rods building up the partial sums of the fourier series
 //parameters for linkage: N, width
@@ -149,6 +156,16 @@ function updateLinkageMesh(linkage, params, t){
         //rods are the odd indices in the linkage
         linkage.children[2*i+1].geometry.dispose();
         linkage.children[2*i+1].geometry=rodGeometry(fourierGraphPoint_Complex(t,i), fourierGraphPoint_Complex(t,i+1),width);
+
+        //determine which circles are visible
+        if(i<ui.N){
+            linkage.children[2*i].visible=true;
+            linkage.children[2*i+1].visible=true;
+        }
+        else{
+            linkage.children[2*i].visible=false;
+            linkage.children[2*i+1].visible=false;
+        }
     }
 }
 
@@ -176,6 +193,14 @@ function updateWheelsMesh(wheels,params,time){
     for(let i=0;i<params.n;i++) {
         pos=fourierGraphPoint_Complex(time, i);
         wheels.children[i].position.set(pos.x,pos.y,pos.z);
+
+        //determine which circles are visible
+        if(i<ui.N){
+            wheels.children[i].visible=true;
+        }
+        else{
+            wheels.children[i].visible=false;
+        }
     }
 }
 
@@ -244,13 +269,6 @@ function createMeshes(cubeTexture) {
 
 function updateMeshes(time) {
 
-    //use the UI to update material properties
-    // surfaceMaterial.transmission=1-ui.opacity;
-    // surfaceMaterial.color.set(ui.surfColor);
-    // surfaceMaterial.envMapIntensity=3.*ui.reflectivity;
-    //
-    // curveMaterial.color.set(ui.curveColor);
-
     //set the domain coordinate we are going for
     let t=2.*Math.PI*Math.sin(0.2*time);
 
@@ -270,6 +288,9 @@ function updateMeshes(time) {
 
 
 export {
+    graph,
+    graph_Complex,
     createMeshes,
-    updateMeshes
+    updateMeshes,
+    updateFourierGraphMesh,
 }

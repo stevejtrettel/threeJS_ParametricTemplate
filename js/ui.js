@@ -6,13 +6,27 @@ import {
     GUI
 } from './libs/dat.gui.module.js';
 
+
 //=============================================
 //Imports from My Code
 //=============================================
 
 //NONE HERE
+import {
+    updateFourierGraphMesh,
+    graph,
+    graph_Complex
+} from "./mesh.js";
+
+import {
+    fourierGraphPoint,
+    fourierGraphPoint_Complex
+} from "./calculations.js";
 
 
+//=============================================
+//Variables Defined in this File
+//=============================================
 
 //=============================================
 //Variables Defined in this File
@@ -21,20 +35,11 @@ import {
 
 let ui = {
     AboutThis: function(){
-      window.open('./about.html');
+        window.open('./about.html');
     },
-    a:0.5,
-    b:0.5,
-    c:0.5,
-    N:10,
-    slices:0.1,
-    stacks:0.5,
-    curveRes:0.5,
-    tubeWidth:0.5,
-    opacity:0.5,
-    reflectivity:0.5,
-    surfColor:0x1e43,
-    curveColor:0xffffff,
+
+    N:30,
+
 };
 
 
@@ -49,37 +54,30 @@ let ui = {
 
 function createUI() {
 
-    // let mainMenu = new GUI();
-    //
-    // mainMenu.width = 300;
-    //
-    // mainMenu.domElement.style.userSelect = 'none';
-    //
-    // mainMenu.add(ui, 'AboutThis').name("Help/About");
-    // mainMenu.add(ui, 'N', 0, 20, 1).name('N');
-    //
-    // let params= mainMenu.addFolder('Parameters');
-    // params.add(ui, 'a', 0, 1, 0.01).name('a');
-    // params.add(ui, 'b', 0, 1, 0.01).name('b');
-    // params.add(ui, 'c', 0, 1, 0.01).name('c');
-    //
-    // let surfSettings= mainMenu.addFolder('Surface Settings');
-    // surfSettings.add(ui,'slices',0,1,0.01).name('u Resolution');
-    // surfSettings.add(ui,'stacks',0,1,0.01).name('v Resolution');
-    // surfSettings.add(ui,'opacity',0,1,0.01).name('Opacity');
-    // surfSettings.add(ui,'reflectivity',0,1,0.01).name('Reflectivity');
-    // surfSettings.addColor(ui, 'surfColor')
-    //     .name('Color');
-    //
-    // let curveSettings= mainMenu.addFolder('Curve Settings');
-    // curveSettings.add(ui,'curveRes',0,1,0.01).name('Resolution');
-    // curveSettings.add(ui,'tubeWidth',0,1,0.01).name('Thickness');
-    // curveSettings.addColor(ui, 'curveColor')
-    //     .name('Color');
-    //
-    // params.close();
-    // surfSettings.close();
-    // curveSettings.close();
+    let mainMenu = new GUI();
+
+    mainMenu.width = 300;
+
+    mainMenu.domElement.style.userSelect = 'none';
+
+    mainMenu.add(ui, 'AboutThis').name("Help/About");
+
+    let numController=mainMenu.add(ui, 'N', 0, 30, 1).name('N');
+
+    numController.onChange(function(value){
+        //already when we are animating each frame, we can set the visibility of the linkage.
+        //the only thing we want to restrict to UI changes is re-drawing the graph;
+        let params= {
+            n:value,
+            a:-2*Math.PI,
+            b:2.*Math.PI,
+            width:0.05
+        };
+        updateFourierGraphMesh(graph,fourierGraphPoint,params);
+        updateFourierGraphMesh(graph_Complex,fourierGraphPoint_Complex,params);
+
+    });
+
 }
 
 

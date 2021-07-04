@@ -14,8 +14,10 @@ import {
 } from './ui.js';
 
 import{
-    parametricCurvePoint,
-   parametricSurfacePoint
+    fourierPartialSum,
+    fourierPartialSum_Complex,
+    fourierGraphPoint,
+    fourierGraphPoint_Complex,
 } from './calculations.js';
 // from './calculations_Advanced.js';
 
@@ -31,58 +33,71 @@ import{
 
 
 
-
-
 //=============================================
 //Functions to Export
 //=============================================
 
+function wheelGeometry(rad, thickness=0.25){
+//wheel is created centered at 0,0,0, in the yz-plane.
+    //its orientation and position can be moved by moving the entire mesh after creating.
+    let points = [];
+    let p,t;
 
+    for (let k = 0; k < 25; k++) {
+        t = 2 * 3.14 * (k / 25);
 
-function createCurve(time){
-    
-    let points=[];
-    let numSteps=200*ui.curveRes;
-    let pt;
-
-    for(let i=0;i<numSteps;i++){
-
-        pt=parametricCurvePoint(i/numSteps,time);
-        points.push(pt);
+        p = new THREE.Vector3(0, rad * Math.cos(t), rad * Math.sin(t));
+        points.push(p);
     }
-    
-    let curve = new THREE.CatmullRomCurve3(points);
 
-    let res=5*numSteps;
-    let width=Math.max(0.01,0.3*ui.tubeWidth);
+    let path = new THREE.CatmullRomCurve3(points);
 
-    let geometry = new THREE.TubeBufferGeometry(curve, res, width, 15, false);
-    
-    return geometry; 
-    
+    return new THREE.TubeBufferGeometry(path, 75, thickness, 15, true);
 }
 
 
-////outputs the geometry of the surface
-//uses the function getSurfacePoint
-function createSurface(time){
 
-    //set the resolution of the surface
-    let slices=200.*ui.slices;
-    let stacks=200.*ui.stacks;
-    
-    return new THREE.ParametricBufferGeometry(
-        (u,v, dest) => {
 
-            //map using parametric surface
-            let res=parametricSurfacePoint(u,v,time);
-            dest.set(res.x,res.y,res.z);
+function rodGeometry(p,q,thickness=0.25){
+    //p,q are Vector3 endpoints of the rod
+    //thickness is an optional parameter.
 
-        },
-        slices,stacks //slices and stacks
-    )
+    let points = [];
+    let t,r;
+    for (let k = 0; k < 30; k++) {
+        t = k / 30;
+
+        r = new THREE.Vector3(p.x + t * (q.x - p.x), p.y + t * (q.y - p.y), p.z + t * (q.z - p.z));
+        points.push(r);
+    }
+
+    let path = new THREE.CatmullRomCurve3(points);
+
+    return new THREE.TubeBufferGeometry(path, 75, thickness, 15, false);
+}
+
+
+
+
+function fourierGraphGeometry(curve,n,a=-Math.PI,b=Math.PI, thickness=0.1){
+    //n is how many terms in fourier series
+    //a,b are endpoints of interval it is graphed on
+    //drawn in xy plane
+
+    let points = [];
+    let t;
+    for (let k = 0; k < 1000; k++) {
+        t = a+(b-a)* k / 1000;
+
+        points.push(curve(t,n));
+    }
+
+    let path = new THREE.CatmullRomCurve3(points);
+    return new THREE.TubeBufferGeometry(path, 3000, thickness, 15, false);
 
 }
+
+
 
 
 
@@ -93,6 +108,7 @@ function createSurface(time){
 
 
 export {
-    createCurve,
-    createSurface
+    rodGeometry,
+    wheelGeometry,
+    fourierGraphGeometry,
 };

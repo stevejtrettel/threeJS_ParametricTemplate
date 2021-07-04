@@ -26,6 +26,7 @@ import * as THREE from './libs/three.module.js';
 //=============================================
 
 let curveMaterial,surfaceMaterial;
+let glassMaterial;
 
 
 //=============================================
@@ -38,6 +39,18 @@ let curveMaterial,surfaceMaterial;
         
         let cubeTex=createEnvMap();
 
+        glassMaterial = new THREE.MeshPhysicalMaterial({
+
+            color: 0xffffff,
+            metalness: 0.2,
+            roughness: 0,
+            envMap: cubeTex,
+            envMapIntensity: 1.,
+            side: THREE.DoubleSide,
+            transparent: true,
+            clearcoat:1,
+            transmission:1.,
+        });
 
         curveMaterial = new THREE.MeshPhysicalMaterial({
 
@@ -74,6 +87,7 @@ let curveMaterial,surfaceMaterial;
 
 
     export{
+        glassMaterial,
         curveMaterial,
         surfaceMaterial,
         createMaterials,

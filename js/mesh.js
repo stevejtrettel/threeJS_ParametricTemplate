@@ -49,11 +49,53 @@ import {
 //Variables Defined in this File
 //=============================================
 
-let graph,graph_Complex;
-let gBall1,gBall2,gCBall1,gCBall2;
-let wheels=[];
-let rods=[];
-let balls=[];
+let graph;
+let partialGraphs=[];
+
+
+
+//=============================================
+//Making a Graph with Balls on the End
+//=============================================
+
+
+
+
+//draw the graph of a partial sum of the fourier series
+//parameters={n,a,b,thickness}
+function fourierGraphMesh(params, mat){
+
+    let graph, geometry, curve,pos, ball1, ball2;
+
+    //make the main part of the graph
+    graph=new THREE.Group();
+    geometry=fourierGraphGeometry(fourierGraphPoint, params);
+    curve=new THREE.Mesh(geometry, mat);
+    graph.add(curve);
+
+    //add some balls on the end of the graph
+    geometry=new THREE.SphereBufferGeometry(0.075,32,32);
+    ball1=new THREE.Mesh(geometry, mat);
+    pos=fourierGraphPoint(params.a,params.n);
+    ball1.position.set(pos.x,pos.y,pos.z);
+    graph.add(ball1);
+
+    ball2=new THREE.Mesh(geometry, mat);
+    pos=fourierGraphPoint(params.b,params.n);
+    ball2.position.set(pos.x,pos.y,pos.z);
+    graph.add(ball2);
+
+    //return the group to add to scene
+    return graph;
+}
+
+
+//update this graph by changing its parameters.
+function updateFourierGraphMesh(group,n, a,b,thickness){
+    group.graph.geometry.dispose();
+    group.graph.geometry=fourierGraphGeometry(fourierGraphPoint, n, a, b, thickness);
+}
+
 
 
 
@@ -64,7 +106,7 @@ let balls=[];
 
 function createMeshes(cubeTexture) {
     
-    let geometry;//internal variable
+    let geometry,mesh;//internal variable
 
     //build up the materials
     createMaterials(cubeTexture);
@@ -72,36 +114,29 @@ function createMeshes(cubeTexture) {
 
     //set the res
     let N=30;
-    let width, pos;
-
-
-
+    let width, pos,params;
 
     //make the real graph
-    geometry=fourierGraphGeometry(fourierGraphPoint, N,-2*Math.PI,2.*Math.PI+0.012,0.05);
-    graph=new THREE.Mesh(geometry, curveMaterial);
+    params={
+        n:N,
+        a:-2*Math.PI,
+        b:2.*Math.PI+0.012,
+        thickness:0.05
+    };
+    graph=fourierGraphMesh( params, curveMaterial);
     scene.add(graph);
 
 
-    //add little balls on the end of the graph to cap it off:
-    geometry=new THREE.SphereBufferGeometry(0.075,32,32);
-    gBall1=new THREE.Mesh(geometry, curveMaterial);
-    scene.add(gBall1);
-    pos=fourierGraphPoint(-2*Math.PI,N);
-    gBall1.position.set(pos.x,pos.y,pos.z);
-
-    gBall2=new THREE.Mesh(geometry, curveMaterial);
-    scene.add(gBall2);
-    pos=fourierGraphPoint(2*Math.PI,N);
-    gBall2.position.set(pos.x,pos.y,pos.z);
-
-
-
-
-    //make the complex graph
-    geometry=fourierGraphGeometry(fourierGraphPoint_Complex, N,-2*Math.PI,2*Math.PI+0.012,0.03);
-    graph_Complex=new THREE.Mesh(geometry, glassMaterial);
-    scene.add(graph_Complex);
+    //make all the partial graphs
+    for(let i=0;i<N;i++) {
+        width=0.05/(i+1);
+        //change the number of terms in the sum
+        params.n=i;
+        mesh=fourierGraphMesh( params, curveMaterial );
+        mesh.position.set(0,0,-N+i);
+        partialGraphs.push(mesh);
+        scene.add(partialGraphs[i]);
+    }
 
 
     //make the plane
@@ -109,44 +144,13 @@ function createMeshes(cubeTexture) {
     let plane = new THREE.Mesh(geometry, glassMaterial);
     scene.add(plane);
 
-    //make the x-axis
-    geometry = rodGeometry(new THREE.Vector3(-2.*Math.PI,0,0), new THREE.Vector3(2*Math.PI+0.4,0,0),0.03);
-    let axis=new THREE.Mesh(geometry, curveMaterial);
-    scene.add(axis);
+    // //make the x-axis
+    // geometry = rodGeometry(new THREE.Vector3(-2.*Math.PI,0,0), new THREE.Vector3(2*Math.PI+0.4,0,0),0.03);
+    // let axis=new THREE.Mesh(geometry, curveMaterial);
+    // scene.add(axis);
 
 
 
-
-
-
-
-
-    //make all the wheels
-    for(let i=0;i<N;i++) {
-        width=0.05/(i+1);
-        geometry = wheelGeometry(amplitude(i),width);
-        wheels.push(new THREE.Mesh(geometry, curveMaterial));
-        scene.add(wheels[i]);
-    }
-
-    //make all the rods
-    for(let i=0;i<N;i++) {
-        width = 0.05/(i+1);
-        geometry = rodGeometry(fourierGraphPoint_Complex(0,i), fourierGraphPoint_Complex(0,i+1),width);
-        rods.push(new THREE.Mesh(geometry, curveMaterial));
-        scene.add(rods[i]);
-    }
-
-    //make all the balls
-    for(let i=0;i<N;i++) {
-        width=0.1;
-        if(i!=0){
-            width=0.075/i;
-        }
-        geometry = new THREE.SphereBufferGeometry(width,32,32);
-        balls.push(new THREE.Mesh(geometry, curveMaterial));
-        scene.add(balls[i]);
-    }
 
 }
 
@@ -171,19 +175,12 @@ function updateMeshes(time) {
     //set the depth
     let N=30;
 
-    //move all the wheels and balls
-    for(let i=0;i<N;i++) {
-        pos=fourierGraphPoint_Complex(t, i);
-        wheels[i].position.set(pos.x,pos.y,pos.z);
-        balls[i].position.set(pos.x,pos.y,pos.z);
-    }
-
-    //re-make all the rods
-    for(let i=0;i<N;i++) {
-        width=0.05/(i+1);
-        rods[i].geometry.dispose();
-        rods[i].geometry=rodGeometry(fourierGraphPoint_Complex(t,i), fourierGraphPoint_Complex(t,i+1),width);
-    }
+    // //move and re-set all the graphs
+    // for(let i=0;i<N;i++) {
+    //     width=0.05/(i+1);
+    //     rods[i].geometry.dispose();
+    //     rods[i].geometry=rodGeometry(fourierGraphPoint_Complex(t,i), fourierGraphPoint_Complex(t,i+1),width);
+    // }
 
 
 }

@@ -20,9 +20,12 @@ import {
         scene
     } from './scene.js';
 
+import {
+    setInitialCondition
+} from './calculations.js';
 
     import {
-        createCurve,
+        createGeodesic,
         createSurface
     } from './geometry.js';
 
@@ -65,31 +68,41 @@ function createMeshes(cubeTexture) {
     scene.add(surface);
 
     //curve geometry
-    geometry=createCurve(0);
+    let params={
+        length:10,
+        initialCond:setInitialCondition(0.3,0.3),
+    }
+    geometry=createGeodesic(params);
     curve=new THREE.Mesh(geometry, curveMaterial);
     scene.add(curve);
 
 }
 
 
-
+function updateGeodesicFromUI(curve){
+    curve.geometry.dispose();
+    let params={
+        length:10,
+        initialCond:setInitialCondition(ui.anglePos,ui.angleVel)
+    };
+    curve.geometry = createGeodesic(params);
+}
 
 function updateMeshes(time) {
 
     //use the UI to update material properties
-    surfaceMaterial.transmission=1-ui.opacity;
-    surfaceMaterial.color.set(ui.surfColor);
-    surfaceMaterial.envMapIntensity=3.*ui.reflectivity;
-
-    curveMaterial.color.set(ui.curveColor);
+    // surfaceMaterial.transmission=1-ui.opacity;
+    // surfaceMaterial.color.set(ui.surfColor);
+    // surfaceMaterial.envMapIntensity=3.*ui.reflectivity;
+    //
+    // curveMaterial.color.set(ui.curveColor);
 
 
     //update the geometries
-    surface.geometry.dispose();
-    surface.geometry = createSurface(time);
+    // surface.geometry.dispose();
+    // surface.geometry = createSurface(time);
+    //
 
-    curve.geometry.dispose();
-    curve.geometry = createCurve(time);
 
 }
 
@@ -104,5 +117,6 @@ function updateMeshes(time) {
 
 export {
     createMeshes,
-    updateMeshes
+    updateMeshes,
+    updateGeodesicFromUI
 }

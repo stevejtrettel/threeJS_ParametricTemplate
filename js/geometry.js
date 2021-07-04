@@ -14,7 +14,7 @@ import {
 } from './ui.js';
 
 import{
-    parametricCurvePoint,
+    computeGeodesic,
    parametricSurfacePoint
 } from './calculations.js';
 // from './calculations_Advanced.js';
@@ -38,23 +38,16 @@ import{
 //=============================================
 
 
-
-function createCurve(time){
+//parameters are initial condition and length
+function createGeodesic(params){
     
-    let points=[];
-    let numSteps=200*ui.curveRes;
-    let pt;
-
-    for(let i=0;i<numSteps;i++){
-
-        pt=parametricCurvePoint(i/numSteps,time);
-        points.push(pt);
-    }
+    let points=computeGeodesic(params);
+    let numSteps=points.length;
     
     let curve = new THREE.CatmullRomCurve3(points);
 
-    let res=5*numSteps;
-    let width=Math.max(0.01,0.3*ui.tubeWidth);
+    let res=10*numSteps;
+    let width=0.1;
 
     let geometry = new THREE.TubeBufferGeometry(curve, res, width, 15, false);
     
@@ -68,8 +61,8 @@ function createCurve(time){
 function createSurface(time){
 
     //set the resolution of the surface
-    let slices=200.*ui.slices;
-    let stacks=200.*ui.stacks;
+    let slices=100;
+    let stacks=100;
     
     return new THREE.ParametricBufferGeometry(
         (u,v, dest) => {
@@ -93,6 +86,6 @@ function createSurface(time){
 
 
 export {
-    createCurve,
+    createGeodesic,
     createSurface
 };

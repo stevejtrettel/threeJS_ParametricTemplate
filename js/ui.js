@@ -10,8 +10,9 @@ import {
 //Imports from My Code
 //=============================================
 
-//NONE HERE
-
+import {
+    updateGeodesicFromUI
+} from './mesh.js';
 
 
 //=============================================
@@ -23,6 +24,8 @@ let ui = {
     AboutThis: function(){
       window.open('./about.html');
     },
+    anglePos:0.2,
+    angleVel:0.5,
     a:0.5,
     b:0.5,
     c:0.5,
@@ -55,6 +58,8 @@ function createUI() {
     mainMenu.domElement.style.userSelect = 'none';
     
     mainMenu.add(ui, 'AboutThis').name("Help/About");
+    mainMenu.add(ui, 'anglePos', 0, 1, 0.01).name('Initial Position');
+    mainMenu.add(ui, 'angleVel', 0, 1, 0.01).name('Initial Veloicty');
 
     let params= mainMenu.addFolder('Parameters');
     params.add(ui, 'a', 0, 1, 0.01).name('a');

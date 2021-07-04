@@ -41,25 +41,25 @@ let curveMaterial,surfaceMaterial;
 
         curveMaterial = new THREE.MeshPhysicalMaterial({
 
-            color: 0xffffff,
+            color: 0x363FBA,
             metalness: 0.2,
             roughness: 0,
             envMap: cubeTex,
-            envMapIntensity: 2.,
+            envMapIntensity: 0.5,
             side: THREE.DoubleSide,
         });
 
 
        surfaceMaterial = new THREE.MeshPhysicalMaterial({
-            color: 0x1e43,
-            transparent:true,
+            color: 0xA195F5,
+            //transparent:true,
             clearcoat:1,
-            transmission:1-ui.opacity,
+            //transmission:1-ui.opacity,
             metalness: 0,
             roughness: 0,
             envMap: cubeTex,
-            envMapIntensity: 1.5,
-            side: THREE.DoubleSide,
+            envMapIntensity: 0.5,
+            side: THREE.BackSide,
         });
 
     }

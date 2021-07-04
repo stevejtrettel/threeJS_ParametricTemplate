@@ -131,7 +131,7 @@ function createBkgScene() {
     geometry.deleteAttribute('uv');
     
     var roomMaterial = new THREE.MeshStandardMaterial({
-        color:0xffffff,
+        color:0x9ACFF4,
         metalness: 0.,
         side: THREE.BackSide
     });
@@ -141,14 +141,12 @@ function createBkgScene() {
     
     bkgScene.scene.add(bkgScene.room);
 
-    bkgScene.mainLight = new THREE.PointLight(0xffffff, 20, 0, 2);
+    bkgScene.mainLight = new THREE.PointLight(0xffffff, 10, 0, 2);
     
     bkgScene.scene.add(bkgScene.mainLight);
 
     //build the cube map fom this scene:
-
     var generatedCubeRenderTarget = pmremGenerator.fromScene(bkgScene.scene, 0.04);
-
 
     return  generatedCubeRenderTarget.texture;
 }

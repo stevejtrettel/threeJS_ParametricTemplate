@@ -26,15 +26,8 @@ import {
 //Components for building the surface,curve
 //=============================================
 
-//none here
 
-
-//=============================================
-//The shell example
-//=============================================
-
-
-function parametricSurfacePoint(u,v,time){
+function parametricSurfacePoint(u,v,time=0){
 
     //set the coordinate domain:
     let uMin=0;
@@ -44,93 +37,129 @@ function parametricSurfacePoint(u,v,time){
 
 
     //get variables from user input
-    let a=ui.a;
-    let b=ui.b;
-    let c=ui.c;
+    let a = 1.+2.*ui.a;
+    let b = ui.b;
+    let c = ui.c;
 
     //rescale the coords from [0,1]
-    u=(uMax-uMin)*u+uMin;
-    v=(vMax-vMin)*v+vMin;
+    u = (uMax-uMin)*u+uMin;
+    v = (vMax-vMin)*v+vMin;
 
     //make the parametric function:
-    let x=a*(5/4 *(1-v/(2*Math.PI))*Math.cos(2*v)*(1+Math.cos(u))+Math.cos(2*v));
-    let y=b*(5/4 *(1-v/(2*Math.PI))*Math.sin(2*v)*(1+Math.cos(u))+Math.sin(2*v));
-    let z=c*(10*v/(2*Math.PI)+(1-v/(2*Math.PI))*Math.sin(u));
+    let x = (a + Math.cos(v)) * Math.sin(u);
+    let y = (a + Math.cos(v)) * Math.cos(u);;
+    let z = Math.sin(v);
 
     return new THREE.Vector3(x,z,-y);
 }
 
 
+//all the christoffel symbol trash goes in here!
+function acceleration(state) {
 
+    //unpack the position and velocity coordinates
+    let u = state[0].x;
+    let v = state[0].y;
+    let uP = state[1].x;
+    let vP = state[1].y;
 
+    let A=2.*ui.a+1;
 
+    //For Torus
+    let uAcc = 2 * uP * vP * Math.sin(v) / (A + Math.cos(v));
+    let vAcc = -(A + Math.cos(v)) * uP * uP * Math.sin(v);
+    let acc = new THREE.Vector2(uAcc, vAcc);
 
-
-function parametricCurvePoint(s,time){
-    return parametricSurfacePoint(s,0,time);
+    return acc;
 }
 
 
 
 
 
+//takes in Vector4[pos,vel] and returns Vector4[vel, acc]
+function stateDeriv(st4) {
+
+    let pos = new THREE.Vector2(st4.x, st4.y);
+    let vel = new THREE.Vector2(st4.z, st4.w);
+
+    let acc = acceleration([pos, vel]);
+
+    return new THREE.Vector4(vel.x, vel.y, acc.x, acc.y);
+}
 
 
-//=============================================
-//An Example with Parameters
-//=============================================
+function rk4OneStep(state,step) {
 
-// //
-// function parametricSurfacePoint(u,v,time){
-//
-//
-//     //set the coordinate domain:
-//     let uMin=-3;
-//     let uMax=3;
-//     let vMin=-3;
-//     let vMax=3;
-//
-//     //rescale the coords from [0,1]
-//     u=(uMax-uMin)*u+uMin;
-//     v=(vMax-vMin)*v+vMin;
-//
-//     //rename and rescale parameters from user input
-//     let a=5*ui.a;
-//     let b=5*ui.b;
-//     let c=5*ui.c;
-//
-//     //make the parametric function:
-//     let x=u;
-//     let y=v;
-//     let z=Math.sin(a*x)*Math.sin(b*y);
-//
-//     //return the result
-//     return new THREE.Vector3(x,z,-y);
-// }
-//
-//
-// function parametricCurvePoint(s,time){
-//
-//     //set up the domain:
-//     let sMin=0;
-//     let sMax=2*Math.PI;
-//
-//     //rescale the input:
-//     s=(sMax-sMin)*s+sMin;
-//
-//     //rename and rescale parameters from user input
-//     let a=5*ui.a;
-//     let b=5*ui.b;
-//     let c=5*ui.c;
-//
-//     //make the parametric function
-//     let x=Math.cos(a*s);
-//     let y=Math.sin(b*s);
-//     let z=Math.cos(c*s);
-//
-//     //return the result
-//     return new THREE.Vector3(x,y,z);
-// }
+    //unpack the position and velocity
+    let pos = state[0];
+    let vel = state[1];
+
+    let st4 = new THREE.Vector4(pos.x, pos.y, vel.x, vel.y);
+
+    let k1 = stateDeriv(st4).multiplyScalar(step);
+
+    let k2 = stateDeriv(st4.clone().add(k1.clone().multiplyScalar(0.5))).multiplyScalar(step);
+
+    let k3 = stateDeriv(st4.clone().add(k2.clone().multiplyScalar(0.5))).multiplyScalar(step);
+
+    let k4 = stateDeriv(st4.clone().add(k3)).multiplyScalar(step);
+
+    let adjustment = k1.clone().add(k2.clone().multiplyScalar(2));
+    adjustment.add(k3.clone().multiplyScalar(2));
+    adjustment.add(k4);
+
+    let soltn = st4.clone().add(adjustment.multiplyScalar(1 / 6));
+
+    //now need to break the solution down into the right type of object to return; a state
+    pos = new THREE.Vector2(soltn.x, soltn.y);
+    vel = new THREE.Vector2(soltn.z, soltn.w);
+    return [pos, vel];
+}
+
+
+
+
+function setInitialCondition(anglePos,angleVel){
+    let pos=new THREE.Vector2(Math.cos(Math.PI*anglePos),Math.sin(Math.PI*anglePos));
+    let vel=new THREE.Vector2(Math.cos(Math.PI*angleVel),Math.sin(Math.PI*angleVel));
+    return [pos,vel];
+}
+
+
+//params are initial condition and time
+function computeGeodesic(params){
+    let points=[];
+    let pt;
+
+    //initial tangent vector to geodesic;
+    let state = params.initialCond;
+    let ui,vi;
+    let step=0.1;
+    let numSteps = params.length / step;
+
+    for (let i = 0; i < numSteps; i++) {
+
+        //these are the parameter-values of the geodesic
+        ui = (state[0]).x;
+        vi = (state[0]).y;
+
+        //calculate x y z coords of parameterization
+        pt=parametricSurfacePoint(ui,vi);
+
+        //append points to the list
+        points.push(pt);
+
+        //move forward one step along the geodesic in UV coordinates
+        state = rk4OneStep(state,step);
+
+    }
+
+    return points;
+}
+
+
+
 
 
 
@@ -143,6 +172,7 @@ function parametricCurvePoint(s,time){
 
 
 export{
-    parametricCurvePoint,
+    setInitialCondition,
+    computeGeodesic,
     parametricSurfacePoint,
 }

@@ -125,7 +125,7 @@ function computeGeodesic(params){
     //initial tangent vector to geodesic;
     let state = params.initialCond;
     let ui,vi;
-    let step=0.03;
+    let step=0.5;
     let numSteps = params.length / step;
 
     for (let i = 0; i < numSteps; i++) {

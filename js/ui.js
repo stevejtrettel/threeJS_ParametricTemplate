@@ -24,8 +24,9 @@ let ui = {
       window.open('./about.html');
     },
     anglePos:0.2,
-    angleVel:0.5,
-    length:10,
+    angleVel:0.6,
+    length:100,
+    wiggle:0.5,
     a:0.5,
     b:0.5,
     c:0.5,
@@ -58,22 +59,10 @@ function createUI() {
     mainMenu.domElement.style.userSelect = 'none';
     
     mainMenu.add(ui, 'AboutThis').name("Help/About");
-    let posController=mainMenu.add(ui, 'anglePos', 0, 1, 0.01).name('Initial Position');
-    let velController=mainMenu.add(ui, 'angleVel', 0, 1, 0.01).name('Initial Veloicty');
-    let lengthController=mainMenu.add(ui, 'length', 0, 50, 0.01).name('Length');
-
-    posController.onChange(function(value){
-        updateGeodesicFromUI();
-        });
-
-    velController.onChange(function(value){
-        updateGeodesicFromUI();
-    });
-
-    lengthController.onChange(function(value){
-        updateGeodesicFromUI();
-    });
-
+    mainMenu.add(ui, 'anglePos', 0, 1, 0.01).name('Initial Position');
+    mainMenu.add(ui, 'angleVel', 0, 1, 0.01).name('Initial Veloicty');
+    mainMenu.add(ui, 'length', 0, 500, 0.1).name('Length');
+    mainMenu.add(ui, 'wiggle',0,1,0.01).name('Animate');
 
     let params= mainMenu.addFolder('Parameters');
     params.add(ui, 'a', 0, 1, 0.01).name('a');

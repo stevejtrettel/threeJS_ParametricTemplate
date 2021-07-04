@@ -4,7 +4,6 @@
     <list default="true" id="f2462464-132c-4557-a9fc-6a14a33e8e92" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/calculations.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/calculations.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/geometry.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/geometry.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/mesh.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/mesh.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/ui.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/ui.js" afterDir="false" />
     </list>

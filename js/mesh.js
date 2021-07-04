@@ -90,7 +90,14 @@ function updateGeodesicFromUI(){
 
 function updateMeshes(time) {
 
-    //there is no animation here, so updates are only performed when the UI is changed
+    //animate the geodesic from the UI
+    curve.geometry.dispose();
+    let angle=ui.angleVel+0.01*ui.wiggle*Math.sin(time);
+    let params={
+        length:ui.length,
+        initialCond:setInitialCondition(ui.anglePos,angle)
+    };
+    curve.geometry = createGeodesic(params);
 
 }
 

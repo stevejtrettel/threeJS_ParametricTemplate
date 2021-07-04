@@ -27,6 +27,7 @@ import * as THREE from './libs/three.module.js';
 
 let curveMaterial,surfaceMaterial;
 let glassMaterial;
+let wheelMaterial;
 
 
 //=============================================
@@ -59,11 +60,21 @@ let glassMaterial;
             roughness: 0,
             envMap: cubeTex,
             envMapIntensity: 2.,
-            side: THREE.DoubleSide,
+            side: THREE.FrontSide,
+        });
+
+       wheelMaterial = new THREE.MeshPhysicalMaterial({
+
+            color: 0xffffff,
+            metalness: 0.2,
+            roughness: 0,
+            envMap: cubeTex,
+            envMapIntensity: 0.75,
+            side: THREE.FrontSide,
         });
 
 
-       surfaceMaterial = new THREE.MeshPhysicalMaterial({
+        surfaceMaterial = new THREE.MeshPhysicalMaterial({
             color: 0x1e43,
             transparent:true,
             clearcoat:1,
@@ -87,6 +98,7 @@ let glassMaterial;
 
 
     export{
+        wheelMaterial,
         glassMaterial,
         curveMaterial,
         surfaceMaterial,

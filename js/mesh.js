@@ -28,6 +28,7 @@ import {
     } from './geometry.js';
 
     import{
+        wheelMaterial,
         curveMaterial,
         surfaceMaterial,
         glassMaterial,
@@ -99,9 +100,9 @@ function fourierGraphMesh(curve, params, mat){
 
 //draw a linkage of balls and rods building up the partial sums of the fourier series
 //parameters for linkage: N, width
-function linkageMesh(params, mat){
+function linkageMesh(params){
 
-    let width, geometry, mesh, pos;
+    let width, geometry, mesh, material,pos;
 
     let linkage=new THREE.Object3D();
 
@@ -113,7 +114,9 @@ function linkageMesh(params, mat){
             width=1.25*params.width/i;
         }
         geometry = new THREE.SphereBufferGeometry(width,32,32);
-        mesh = new THREE.Mesh(geometry, mat);
+        material = wheelMaterial.clone();
+        material.color.setHSL(2*(i-1)/params.n%1,0.7,0.3+0.4*(i/params.n));
+        mesh = new THREE.Mesh(geometry, material);
         pos=fourierGraphPoint_Complex(0,i);
         mesh.position.set(pos.x,pos.y,pos.z);
         linkage.add(mesh);
@@ -121,7 +124,9 @@ function linkageMesh(params, mat){
         //make all the rods
         width = params.width/(i+1);
         geometry = rodGeometry(fourierGraphPoint_Complex(0,i), fourierGraphPoint_Complex(0,i+1), width);
-        mesh = new THREE.Mesh(geometry, mat);
+        material = wheelMaterial.clone();
+        material.color.setHSL(2*i/params.n%1,0.7,0.3+0.4*(i/params.n));
+        mesh = new THREE.Mesh(geometry, material);
         linkage.add(mesh);
     }
 
@@ -149,14 +154,16 @@ function updateLinkageMesh(linkage, params, t){
 
 
 //params={n,width}
-function wheelsMesh(params,mat){
+function wheelsMesh(params){
     let wheels=new THREE.Object3D();
-    let width,geometry;
+    let width,geometry,material;
 
     for(let i=0;i<params.n;i++) {
         width=params.width/(i+1);
         geometry = wheelGeometry(amplitude(i),width);
-        wheels.add(new THREE.Mesh(geometry, mat));
+        material = wheelMaterial.clone();
+        material.color.setHSL(2*i/params.n%1,0.9,0.6+0.4*(i/params.n));
+        wheels.add(new THREE.Mesh(geometry, material));
     }
     return wheels;
 }
@@ -223,12 +230,12 @@ function createMeshes(cubeTexture) {
 
 
     //make the wheels
-    wheels=wheelsMesh({n:30,width:0.075}, curveMaterial);
+    wheels=wheelsMesh({n:30,width:0.075});
     scene.add(wheels);
 
 
     //make the linkage
-    linkage=linkageMesh({n:30,width:0.075}, curveMaterial);
+    linkage=linkageMesh({n:30,width:0.075});
     scene.add(linkage);
 }
 

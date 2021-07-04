@@ -41,7 +41,7 @@ let curveMaterial,surfaceMaterial;
 
         curveMaterial = new THREE.MeshPhysicalMaterial({
 
-            color: 0x363FBA,
+            color: 0x5F199C,
             metalness: 0.2,
             roughness: 0,
             envMap: cubeTex,
